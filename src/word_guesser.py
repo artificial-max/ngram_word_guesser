@@ -25,7 +25,7 @@ except LookupError:
     print("You are missing a necessary corpus.")
     print("Pleasy make sure that the brown corpus and the webtext corpus are installed.")
     while (True):
-        user_input = input("Do you want to download them now? (y/n)")
+        user_input = input("Do you want to download them now? (y/n): ")
         if (user_input == 'y'):
             nltk.download()
             print("Please restart the game.")
@@ -109,7 +109,7 @@ class Ngrams(object):
         this method is also responsible for validating the input and offering 
         the option to quit.
         """
-        user_input = input("Please enter a sentence with one word replaced by \"_\" (or \"q\" to quit): \n")
+        user_input = input("\nPlease enter a sentence with one word replaced by \"_\" (or \"q\" to quit): \n")
         if (user_input == 'q'): # Player quits the game.
             s1 = 's' # Used to choose the correct form of 'times'.
             s2 = 's' # Only use 'time' in the singular case, 'times' otherwise.
