@@ -4,7 +4,9 @@
 """
    
 from ngram import BasicNgram
+import nltk
 from nltk.corpus import brown
+from nltk.corpus import webtext
 import sys
 import os
 # Get file paths to previously learned sentences and the function word list.
@@ -16,7 +18,21 @@ abs_file_path_learned_sents = os.path.join(script_dir, rel_path)
 abs_file_path_function_words = os.path.join(script_dir, rel_path_function)
 
 # Construct the corpus.
-brown_corpus = list(brown.words())
+try:
+    brown_corpus = list(brown.words())
+    webtext_corpus = list(webtext.words())
+except LookupError:
+    print("You are missing a necessary corpus.")
+    print("Pleasy make sure that the brown corpus and the webtext corpus are installed.")
+    while (True):
+        user_input = input("Do you want to download them now? (y/n)")
+        if (user_input == 'y'):
+            nltk.download()
+            print("Please restart the game.")
+            sys.exit(0)
+        else:
+            sys.exit(0)
+            
 
 learned_corpus = [] # The sentences learned from previous games.
 with open(abs_file_path_learned_sents, 'r', encoding="utf-8") as f:
@@ -24,7 +40,7 @@ with open(abs_file_path_learned_sents, 'r', encoding="utf-8") as f:
         if ('#' in line): continue
         learned_corpus += line.split()
         
-complete_corpus = brown_corpus + learned_corpus
+complete_corpus = brown_corpus + webtext_corpus + learned_corpus
 
 # Get the list of function words.
 function_words = []
@@ -102,7 +118,7 @@ class Ngrams(object):
             if(self.wrong == 1): s2 = ''
             if(self.close == 1): s3 = ''
             print("In this session I was correct {} time{} and wrong {} time{}.".format(self.correct, s1, self.wrong, s2))
-            print("{} time{} I was really close!".format(self.close, s3))
+            print("{} time{} I was pretty close.".format(self.close, s3))
             print("Goodbye, I hope you had some fun!")
             sys.exit(0)
         # Check if the format of the entered sentence is ok.
@@ -181,8 +197,8 @@ class Ngrams(object):
         """
         filtered = [w for w in answers if w not in self.function_words and w.isalnum()] 
         if (self.debug):
-            print("Answers before filtering out function words: " + str(answers))
-            print("Answers after filtering out function words: " + str(filtered))
+            print("Answers before filtering: " + str(answers))
+            print("Answers after filtering: " + str(filtered))
         if (filtered):
             answers = filtered
         self.top_answers = answers[1:11]
@@ -204,6 +220,7 @@ class Ngrams(object):
         # backward search (i.e. in the intersection) are preferred.
         # The order of the intersection is dictated by the order of the forward answers.
         intersec = sorted(set(forward_answers) & set(backward_answers), key = forward_answers.index)
+        intersec = [w for w in intersec if w.isalnum()] # Exclude punctuation.
         if (self.debug and intersec): print("Intersection of forward and backward answers: " + str(intersec))
         if (intersec):
             answer = self.filter_answers(intersec)
@@ -240,7 +257,7 @@ class Ngrams(object):
                     print("\nHere are other answers I considered:")
                     print(str(self.top_answers))
                     if (user_input in self.top_answers):
-                        print("I guess I was pretty close!")
+                        print("I was pretty close!")
                         self.close += 1
                 break
             
