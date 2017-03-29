@@ -7,6 +7,7 @@ from ngram import BasicNgram
 import nltk
 from nltk.corpus import brown
 from nltk.corpus import webtext
+import re
 import sys
 import os
 # Get file paths to previously learned sentences and the function word list.
@@ -18,9 +19,11 @@ abs_file_path_learned_sents = os.path.join(script_dir, rel_path)
 abs_file_path_function_words = os.path.join(script_dir, rel_path_function)
 
 # Construct the corpus.
+print("Constructing the corpus...")
 try:
     brown_corpus = list(brown.words())
-    webtext_corpus = list(webtext.words())
+    webtext_corpus = list(webtext.words())   
+# If a corpus is not installed, give the player the option to do it now.
 except LookupError:
     print("You are missing a necessary corpus.")
     print("Pleasy make sure that the brown corpus and the webtext corpus are installed.")
@@ -42,7 +45,7 @@ with open(abs_file_path_learned_sents, 'r', encoding="utf-8") as f:
         
 complete_corpus = brown_corpus + webtext_corpus + learned_corpus
 
-# Get the list of function words.
+# Read the list of function words.
 function_words = []
 with open(abs_file_path_function_words, 'r', encoding="utf-8") as f:
     for line in f:
@@ -76,6 +79,7 @@ class Ngrams(object):
         top_answers (list(Str)): A list of the most likely answers (maximum 10).
     """
     def __init__(self, corpus, function_words, debug=False):
+        print("Generating bigrams, trigrams and fourgrams. This may take a minute or two...")
         self.debug = debug
         self.function_words = function_words
         print("Generating bigrams...")
@@ -122,7 +126,8 @@ class Ngrams(object):
             print("Goodbye, I hope you had some fun!")
             sys.exit(0)
         # Check if the format of the entered sentence is ok.
-        self.sentence = user_input.split()
+        #self.sentence = user_input.split()
+        self.sentence = re.findall(r"[\w']+|[.,!?;]", user_input)
         if (len(self.sentence) < 2): # A one word sentence or only '_' is not allowed.
             print("Please enter a longer sentece.")
             return self.generate_answers_forward()
