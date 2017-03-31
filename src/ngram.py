@@ -54,7 +54,7 @@ class BasicNgram(ConditionalProbDist):
             self._counter[context][outcome]+=1
             
     """
-    returns an iterable over the ngrams of the word corpus
+    Returns an iterable over the ngrams of the word corpus
     """
     def generate_ngrams(self):
         return ngrams(self._words, self._n, self._pad_left, self._pad_right,

@@ -127,13 +127,13 @@ class Ngrams(object):
             sys.exit(0)
         # Check if the format of the entered sentence is ok.
         #self.sentence = user_input.split()
-        self.sentence = re.findall(r"[\w']+|[.,!?;]", user_input)
+        self.sentence = re.findall(r"[\w']+|[.,!?;]", user_input) # Tokenize the input.
         if (len(self.sentence) < 2): # A one word sentence or only '_' is not allowed.
             print("Please enter a longer sentece.")
             return self.generate_answers_forward()
-        # Check if a word has been left out in the sentence.
-        if (not '_' in self.sentence):
-            print("Please leave a word out for me to guess. Use \"_\" somewhere!")
+        # Check if exactly one word has been left out in the sentence.
+        if (self.sentence.count('_') != 1):
+            print("Please leave one word out for me to guess. Use \"_\" once!")
             return self.generate_answers_forward()
         # At this point the input sentence looks valid.
         self.index_ = self.sentence.index('_')
@@ -142,7 +142,7 @@ class Ngrams(object):
         ### Forward search ###
         # Search for an answer using fourgrams.
         next = self.fourgram[tuple(self.sentence[self.index_-3:self.index_])]
-        answers = next.samples()
+        answers = next.samples() # samples() returns the most probable next words in an ordered list.
         if answers:
             if (self.debug): print("Fourgram answers: " + str(list(answers)[:self.max_answers]))
             return list(answers)[:self.max_answers]
@@ -206,7 +206,7 @@ class Ngrams(object):
             print("Answers after filtering: " + str(filtered))
         if (filtered):
             answers = filtered
-        self.top_answers = answers[1:11]
+        self.top_answers = answers[1:11] # The alternative answers to be displayed if the guess is wrong.
         return "*" + str(answers[0]) + "*"
         
 
@@ -228,7 +228,7 @@ class Ngrams(object):
         intersec = [w for w in intersec if w.isalnum()] # Exclude punctuation.
         if (self.debug and intersec): print("Intersection of forward and backward answers: " + str(intersec))
         if (intersec):
-            answer = self.filter_answers(intersec)
+            answer = self.filter_answers(intersec) # Filter out function words.
         elif (forward_answers):
             # If there is no intersection, return the best forward search answer.
             answer = self.filter_answers(forward_answers)
